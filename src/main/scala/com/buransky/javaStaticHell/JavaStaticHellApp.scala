@@ -9,6 +9,7 @@ import scala.collection.mutable.ListBuffer
 
 /**
  * Application command line arguments.
+ * fdp -Tsvg -o graph.svg ./graph.dot
  *
  * @param jarFilePath Path to jar file to be analysed.
  */
@@ -30,6 +31,8 @@ object JavaStaticHellApp {
     // Buffer with all static dependencies
     val buffer = new ListBuffer[Dep]
 
+    val packageFilter = "org.springframework"
+
     // Go through all entries
     val jarEntries = new JarFile(appArgs.jarFilePath).entries()
     while (jarEntries.hasMoreElements) {
@@ -38,15 +41,32 @@ object JavaStaticHellApp {
       if (!jarEntry.isDirectory && jarEntry.getName.endsWith(".class")) {
         val classParser = new ClassParser(appArgs.jarFilePath.getAbsolutePath, jarEntry.getName)
         val javaClass = classParser.parse()
-        val classVisitor = new ClassVisitor(javaClass)
-        val deps = classVisitor.staticDependencies()
-        if (deps.nonEmpty)
-          buffer += Dep(javaClass.getClassName, deps)
+        if (javaClass.getClassName.startsWith(packageFilter)) {
+          val classVisitor = new ClassVisitor(javaClass)
+          val deps = classVisitor.staticDependencies().filter(d => d.startsWith(packageFilter) && d != javaClass.getClassName)
+          if (deps.nonEmpty)
+            buffer += Dep(javaClass.getClassName, deps)
+        }
       }
     }
 
+    // Recursively generate DOT files of individual levels
+    generateAndRake(buffer, 1)
+  }
+
+  private def generateAndRake(deps: Iterable[Dep], level: Int): Unit = {
     // Generate DOT file
-    generateDotFile(new File("./build/graph.dot"), buffer)
+    generateDotFile(new File(s"./build/graph$level.dot"), deps)
+
+    // Recurse
+    val raked = rake(deps)
+    if (raked.size < deps.size)
+      generateAndRake(raked, level + 1)
+  }
+
+  private def rake(deps: Iterable[Dep]): Iterable[Dep] = {
+    val allTo = deps.flatMap(_.to)
+    deps.filter(d => allTo.contains(d.from))
   }
 
   private def generateDotFile(dotFile: File, deps: Iterable[Dep]): Unit = {
@@ -83,8 +103,8 @@ object JavaStaticHellApp {
     Console.out.println(s"DOT file generated. [${dotFile.getAbsolutePath}]")
   }
 
-  private def classNameForDot(className: String): String = className.replace(".", "")
-  private def labelForDot(className: String): String = className.substring(className.lastIndexOf('.') + 1)
+  private def classNameForDot(className: String): String = className.replaceAll("[\\.$]", "")
+  private def labelForDot(className: String): String = classNameForDot(className.substring(className.lastIndexOf('.') + 1))
 
   private def getAppAgrs(args: Array[String]) =
     JavaStaticHellAppArgs(new File(args(0)))
