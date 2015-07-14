@@ -1,0 +1,13 @@
+apply plugin: 'scala'
+
+group = 'com.buransky'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.7'
+    compile 'org.apache.bcel:bcel:5.2'
+}
