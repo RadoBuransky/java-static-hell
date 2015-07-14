@@ -1,7 +1,7 @@
 package com.buransky.javaStaticHell
 
 import org.apache.bcel.classfile.{ConstantPool, EmptyVisitor, JavaClass, Method}
-import org.apache.bcel.generic.ConstantPoolGen
+import org.apache.bcel.generic.{ConstantPoolGen, MethodGen}
 
 private[javaStaticHell] class ClassVisitor(mainJavaClass: JavaClass) extends EmptyVisitor {
   private lazy val constants = new ConstantPoolGen(mainJavaClass.getConstantPool)
@@ -23,8 +23,8 @@ private[javaStaticHell] class ClassVisitor(mainJavaClass: JavaClass) extends Emp
   }
 
   override def visitMethod(method: Method): Unit = {
-//    val methodGen = new MethodGen(method, mainJavaClass.getClassName, constants)
-//    val methodVisitor = new MethodVisitor(methodGen, mainJavaClass)
-//    methodVisitor.start()
+    val methodGen = new MethodGen(method, mainJavaClass.getClassName, constants)
+    val methodVisitor = new MethodVisitor(methodGen, mainJavaClass)
+    methodVisitor.start()
   }
 }
