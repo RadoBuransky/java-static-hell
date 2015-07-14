@@ -1,3 +1,3 @@
 rootProject.name = 'java-static-hell'
-include 'sample'
 
+include 'sample'

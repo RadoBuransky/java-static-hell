@@ -31,8 +31,12 @@ object JavaStaticHellApp {
       val jarEntry = jarEntries.nextElement()
       if (!jarEntry.isDirectory && jarEntry.getName.endsWith(".class")) {
         val classParser = new ClassParser(appArgs.jarFilePath.getAbsolutePath, jarEntry.getName)
-        val classVisitor = new ClassVisitor(classParser.parse())
-        classVisitor.start()
+        val javaClass = classParser.parse()
+        val classVisitor = new ClassVisitor(javaClass)
+        val deps = classVisitor.staticDependencies()
+        deps.foreach { dep =>
+          Console.out.println(s"${javaClass.getClassName} statically depends on $dep")
+        }
       }
     }
   }
