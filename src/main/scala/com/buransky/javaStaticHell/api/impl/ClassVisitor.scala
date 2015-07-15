@@ -1,4 +1,4 @@
-package com.buransky.javaStaticHell
+package com.buransky.javaStaticHell.api.impl
 
 import org.apache.bcel.classfile.{EmptyVisitor, JavaClass, Method}
 import org.apache.bcel.generic.{ConstantPoolGen, MethodGen}

@@ -2,6 +2,7 @@ package com.buransky.javaStaticHell
 
 import java.io.{BufferedWriter, PrintWriter, File}
 import java.util.jar.JarFile
+import com.buransky.javaStaticHell.api.impl.ClassVisitor
 import org.apache.bcel.classfile.{ClassFormatException, ClassParser}
 
 import scala.collection.JavaConversions._
